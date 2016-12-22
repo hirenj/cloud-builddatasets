@@ -1,5 +1,5 @@
 {
-  "name": "aws-builddatasets",
+  "name": "cloud-builddatasets",
   "version": "0.0.1",
   "description": "Use AWS codebuild to build datasets",
   "main": "index.js",
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hirenj/aws-builddatasets.git"
+    "url": "https://github.com/hirenj/cloud-builddatasets.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/hirenj/aws-builddatasets/issues"
+    "url": "https://github.com/hirenj/cloud-builddatasets/issues"
   },
-  "homepage": "https://github.com/hirenj/aws-builddatasets",
+  "homepage": "https://github.com/hirenj/cloud-builddatasets",
   "devDependencies": {
     "aws-sdk": "^2.3.1",
     "grunt": "^0.4.5",
