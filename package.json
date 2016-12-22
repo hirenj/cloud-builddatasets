@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "es6-promise": "^3.1.2",
+    "git-config": "0.0.7",
     "rus-diff": "^1.1.0"
   },
   "repository": {

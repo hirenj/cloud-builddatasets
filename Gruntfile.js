@@ -85,11 +85,29 @@ var summarise_resources = function(stack,resources) {
 	return stack_conf;
 }
 
+var apply_submodule_config = function(common_template) {
+	var git_config = require('git-config').sync('.gitmodules');
+	var rolenames = [];
+	Object.keys(git_config).forEach(module => {
+		var conf = git_config[module];
+		var modulename = conf.path.replace(/builds\//,'').replace(/[^0-9a-z\.\_]/,'');
+		rolenames.push(modulename+'Role');
+		var buildname = modulename+'BuildProject';
+		common_template.Resources[buildname] = JSON.parse(JSON.stringify(common_template.Resources.templateBuildProject));
+		var is_node = require('fs').existsSync(conf.path+'/package.json');
+		common_template.Resources[buildname].Properties.Environment.Image = common_template.Resources[buildname].Properties.Environment.Image[is_node ? 'node' : 'python'];
+		common_template.Resources[buildname].Properties.ServiceRole = { "Ref" : modulename+"Role" };
+		common_template.Resources[buildname].Properties.Source.Location = conf.url+'.git';
+	});
+	common_template.Resources.DatabuilderLogWriterPolicy.Properties.Roles = rolenames.map( (name)=> { return { 'Ref' : name } });
+	rolenames.forEach( name => common_template.Resources[name] = common_template.Resources.templateRole );
+	delete common_template.Resources.templateRole;
+	delete common_template.Resources.templateBuildProject;
+	return common_template;
+};
+
 module.exports = function(grunt) {
 	require('load-grunt-tasks')(grunt);
-
-	grunt.loadNpmTasks('grunt-confirm');
-
 
 	AWS.config.update({region:'us-east-1'});
 
@@ -166,8 +184,7 @@ module.exports = function(grunt) {
 	});
 
 	grunt.registerTask('build_cloudformation', 'Build cloudformation template',function() {
-		var template_paths = ['empty.template'];
-		template_paths = template_paths.concat(grunt.file.expand('node_modules/*/**/resources/*.template'));
+		var template_paths = [];
 		template_paths = template_paths.concat(grunt.file.expand('resources/*.template'));
 		var templates = template_paths.map(function(template) {
 			return grunt.file.readJSON(template);
@@ -190,9 +207,7 @@ module.exports = function(grunt) {
 			});
 			return prev;
 		});
-		common_template.Resources.DatabuilderLogWriterPolicy.Roles = rolenames.map( (name)=> { return { 'Ref' : name } });
-		rolenames.forEach( name => common_template[name] = common_template.templateRole );
-		delete common_template.Resources.templateRole;
+		apply_submodule_config(common_template);
 		grunt.file.write('builddatasets.template',JSON.stringify(common_template,null,'  '));
 	});
 };
