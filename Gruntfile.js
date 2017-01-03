@@ -96,7 +96,6 @@ var apply_submodule_config = function(common_template) {
 		var buildname = modulename+'BuildProject';
 		common_template.Resources[buildname] = JSON.parse(JSON.stringify(common_template.Resources.templateBuildProject));
 		var is_node = require('fs').existsSync(conf.path+'/package.json');
-		common_template.Resources[buildname].Properties.Environment.Image = common_template.Resources[buildname].Properties.Environment.Image[is_node ? 'node' : 'python'];
 		common_template.Resources[buildname].Properties.ServiceRole = { "Ref" : modulename+"Role" };
 		common_template.Resources[buildname].Properties.Source.Location = conf.url+'.git';
 		common_template.Resources[buildname].Properties.Source.BuildSpec = buildspec;
