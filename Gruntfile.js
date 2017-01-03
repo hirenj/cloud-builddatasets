@@ -88,6 +88,7 @@ var summarise_resources = function(stack,resources) {
 var apply_submodule_config = function(common_template) {
 	var git_config = require('git-config').sync('.gitmodules');
 	var rolenames = [];
+	var buildspec = require('fs').readFileSync('buildspec.yml').toString();
 	Object.keys(git_config).forEach(module => {
 		var conf = git_config[module];
 		var modulename = conf.path.replace(/builds\//,'').replace(/[^0-9a-z\.\_]/,'');
@@ -98,6 +99,7 @@ var apply_submodule_config = function(common_template) {
 		common_template.Resources[buildname].Properties.Environment.Image = common_template.Resources[buildname].Properties.Environment.Image[is_node ? 'node' : 'python'];
 		common_template.Resources[buildname].Properties.ServiceRole = { "Ref" : modulename+"Role" };
 		common_template.Resources[buildname].Properties.Source.Location = conf.url+'.git';
+		common_template.Resources[buildname].Properties.Source.BuildSpec = buildspec;
 	});
 	common_template.Resources.DatabuilderLogWriterPolicy.Properties.Roles = rolenames.map( (name)=> { return { 'Ref' : name } });
 	rolenames.forEach( name => common_template.Resources[name] = common_template.Resources.templateRole );

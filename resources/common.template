@@ -1,0 +1,79 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources" : {
+    "DatabuilderLogWriterPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties" : {
+        "PolicyName" : "GatordataLogWriterPolicy",
+        "PolicyDocument" : {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "logs:CreateLogGroup",
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents"
+                ],
+                "Resource": "arn:aws:logs:*:*:*"
+              }
+            ]
+        },
+        "Roles" : []
+      }
+    },
+    "WriteDataPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties" : {
+        "Description" : "Write data from a build",
+        "PolicyDocument" : {
+          "Version": "2012-10-17",
+          "Statement": [{
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject"
+              ],
+              "Resource": [
+                { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "AWS::StackName" }, "-out/*" ] ] }
+              ]
+            }]
+        }
+      }
+    },
+    "templateRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "ManagedPolicyArns" : [ { "Ref" : "WriteDataPolicy" }],
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "codebuild.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+      }
+    },
+    "templateBuildProject" : {
+      "Type" : "AWS::CodeBuild::Project",
+      "Properties" : {
+        "Artifacts" : { "Type": "NO_ARTIFACTS" },
+        "Environment" : {
+          "ComputeType" : "BUILD_GENERAL1_SMALL",
+          "Image" : "aws/codebuild/nodejs:4.3.2",
+          "Type" : "LINUX_CONTAINER"
+        },
+        "Name" : "templateBuild",
+        "ServiceRole" : {"Ref" : "templateRole" },
+        "Source" : {
+          "Location" : "https://github.com/hirenj/templateBuildProject.git",
+          "Type" : "GITHUB"
+        }
+      }
+    }
+  }
+}
