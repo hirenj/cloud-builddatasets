@@ -1,0 +1,18 @@
+version: 0.1
+
+phases:
+  install:
+    commands:
+      - echo 'Installing Build runner'
+      - git clone https://github.com/hirenj/aws-runbuild.git /tmp/runbuild
+      - chmod +x /tmp/runbuild/run_buildstep.sh
+      - /tmp/runbuild/run_buildstep.sh 'install'
+  pre_build:
+    commands:
+      - /tmp/runbuild/run_buildstep.sh 'pre_build'
+  build:
+    commands:
+      - /tmp/runbuild/run_buildstep.sh 'build'
+  post_build:
+    commands:
+      - /tmp/runbuild/run_buildstep.sh 'post_build'
