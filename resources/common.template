@@ -1,10 +1,16 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters" : {
+    "OutputBucket" : {
+      "Type" : "String",
+      "Default" : "buildoutput"
+    }
+  },
   "Resources" : {
     "DatabuilderLogWriterPolicy": {
       "Type": "AWS::IAM::Policy",
       "Properties" : {
-        "PolicyName" : "GatordataLogWriterPolicy",
+        "PolicyName" : "DatabuilderLogWriterPolicy",
         "PolicyDocument" : {
             "Version": "2012-10-17",
             "Statement": [
@@ -31,10 +37,14 @@
           "Statement": [{
               "Effect": "Allow",
               "Action": [
-                "s3:GetObject"
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:ListBucket",
+                "s3:DeleteObject"
               ],
               "Resource": [
-                { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "AWS::StackName" }, "-out/*" ] ] }
+                { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "OutputBucket" },"/*" ] ] },
+                { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "OutputBucket" } ] ] }
               ]
             }]
         }
@@ -43,7 +53,7 @@
     "templateRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
-        "ManagedPolicyArns" : [ { "Ref" : "WriteDataPolicy" }],
+        "ManagedPolicyArns" : [{"Ref" : "WriteDataPolicy"}],
         "AssumeRolePolicyDocument": {
           "Version": "2012-10-17",
           "Statement": [
@@ -63,6 +73,13 @@
       "Properties" : {
         "Artifacts" : { "Type": "NO_ARTIFACTS" },
         "Environment" : {
+          "EnvironmentVariables" : [{
+            "Name" : "BUILD_OUTPUT_BUCKET",
+            "Value" : { "Ref" : "OutputBucket" }
+          },{
+            "Name" : "BUILD_OUTPUT_PREFIX",
+            "Value" : "templateBuildProject"
+          }],
           "ComputeType" : "BUILD_GENERAL1_SMALL",
           "Image" : "aws/codebuild/nodejs:4.3.2",
           "Type" : "LINUX_CONTAINER"

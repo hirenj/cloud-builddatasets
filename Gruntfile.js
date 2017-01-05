@@ -99,6 +99,7 @@ var apply_submodule_config = function(common_template) {
 		common_template.Resources[buildname].Properties.ServiceRole = { "Ref" : modulename+"Role" };
 		common_template.Resources[buildname].Properties.Source.Location = conf.url+'.git';
 		common_template.Resources[buildname].Properties.Source.BuildSpec = buildspec;
+		common_template.Resources[buildname].Properties.Environment.EnvironmentVariables[1].Value = modulename;
 	});
 	common_template.Resources.DatabuilderLogWriterPolicy.Properties.Roles = rolenames.map( (name)=> { return { 'Ref' : name } });
 	rolenames.forEach( name => common_template.Resources[name] = common_template.Resources.templateRole );
