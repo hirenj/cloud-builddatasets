@@ -39,10 +39,11 @@
               "Action": [
                 "s3:GetObject",
                 "s3:PutObject",
-                "s3:ListBucket",
-                "s3:DeleteObject"
+                "s3:ListBucket"
               ],
               "Resource": [
+                { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "CacheBucket" },"/*" ] ] },
+                { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "CacheBucket" } ] ] },
                 { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "OutputBucket" },"/*" ] ] },
                 { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "OutputBucket" } ] ] }
               ]
@@ -68,6 +69,9 @@
         }
       }
     },
+    "CacheBucket": {
+      "Type": "AWS::S3::Bucket"
+    },
     "templateBuildProject" : {
       "Type" : "AWS::CodeBuild::Project",
       "Properties" : {
@@ -76,7 +80,12 @@
           "EnvironmentVariables" : [{
             "Name" : "BUILD_OUTPUT_BUCKET",
             "Value" : { "Ref" : "OutputBucket" }
-          },{
+          },
+          {
+            "Name" : "BUILD_CACHE_BUCKET",
+            "Value" : { "Ref" : "CacheBucket" }
+          },
+          {
             "Name" : "BUILD_OUTPUT_PREFIX",
             "Value" : "templateBuildProject"
           }],
