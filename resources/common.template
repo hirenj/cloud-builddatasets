@@ -82,13 +82,14 @@
             "Value" : { "Ref" : "OutputBucket" }
           },
           {
-            "Name" : "BUILD_CACHE_BUCKET",
-            "Value" : { "Ref" : "CacheBucket" }
-          },
-          {
             "Name" : "BUILD_OUTPUT_PREFIX",
             "Value" : "templateBuildProject"
-          }],
+          },
+          {
+            "Name" : "BUILD_CACHE_BUCKET",
+            "Value" : { "Ref" : "CacheBucket" }
+          }
+          ],
           "ComputeType" : "BUILD_GENERAL1_SMALL",
           "Image" : "aws/codebuild/nodejs:4.3.2",
           "Type" : "LINUX_CONTAINER"
