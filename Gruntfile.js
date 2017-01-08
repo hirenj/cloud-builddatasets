@@ -103,7 +103,13 @@ var apply_submodule_config = function(common_template) {
 		common_template.Resources[buildname].Properties.Name = modulename;
 	});
 	common_template.Resources.DatabuilderLogWriterPolicy.Properties.Roles = rolenames.map( (name)=> { return { 'Ref' : name } });
-	rolenames.forEach( name => common_template.Resources[name] = common_template.Resources.templateRole );
+	rolenames.forEach( name => {
+		common_template.Resources[name] = JSON.parse(JSON.stringify(common_template.Resources.templateRole));
+		common_template.Resources[name].Properties.Policies[0].PolicyDocument.Statement[0].Resource.forEach( res  => {
+			res['Fn::Join'][1][3] = name.replace(/Role$/,'');
+		});
+	});
+
 	delete common_template.Resources.templateRole;
 	delete common_template.Resources.templateBuildProject;
 	return common_template;

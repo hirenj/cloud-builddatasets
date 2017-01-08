@@ -37,14 +37,10 @@
           "Statement": [{
               "Effect": "Allow",
               "Action": [
-                "s3:GetObject",
-                "s3:PutObject",
                 "s3:ListBucket"
               ],
               "Resource": [
-                { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "CacheBucket" },"/*" ] ] },
                 { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "CacheBucket" } ] ] },
-                { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "OutputBucket" },"/*" ] ] },
                 { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "OutputBucket" } ] ] }
               ]
             }]
@@ -55,13 +51,30 @@
       "Type": "AWS::IAM::Role",
       "Properties": {
         "ManagedPolicyArns" : [{"Ref" : "WriteDataPolicy"}],
+        "Policies": [ {
+               "PolicyName": "limitFolders",
+               "PolicyDocument": {
+                  "Version" : "2012-10-17",
+                  "Statement": [ {
+                    "Effect": "Allow",
+                    "Action": [
+                      "s3:GetObject",
+                      "s3:PutObject"
+                    ],
+                    "Resource" : [
+                      { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "OutputBucket" }, "/", "template","/*" ] ] },
+                      { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "CacheBucket" },"/", "template", "/*" ] ] }
+                    ]
+                  } ]
+               }
+        }],
         "AssumeRolePolicyDocument": {
           "Version": "2012-10-17",
           "Statement": [
             {
               "Effect": "Allow",
               "Principal": {
-                "Service": "codebuild.amazonaws.com"
+                "Service": ["codebuild.amazonaws.com"]
               },
               "Action": "sts:AssumeRole"
             }
