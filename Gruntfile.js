@@ -89,11 +89,13 @@ var apply_submodule_config = function(common_template) {
 	var git_config = require('git-config').sync('.gitmodules');
 	var rolenames = [];
 	var buildspec = require('fs').readFileSync('buildspec.yml').toString();
+	var buildnames = [];
 	Object.keys(git_config).forEach(module => {
 		var conf = git_config[module];
 		var modulename = conf.path.replace(/builds\//,'').replace(/[^0-9a-z\.\_]/,'');
 		rolenames.push(modulename+'Role');
 		var buildname = modulename+'BuildProject';
+		buildnames.push(buildname);
 		common_template.Resources[buildname] = JSON.parse(JSON.stringify(common_template.Resources.templateBuildProject));
 		var is_node = require('fs').existsSync(conf.path+'/package.json');
 		common_template.Resources[buildname].Properties.ServiceRole = { "Ref" : modulename+"Role" };
@@ -102,6 +104,7 @@ var apply_submodule_config = function(common_template) {
 		common_template.Resources[buildname].Properties.Environment.EnvironmentVariables[1].Value = modulename;
 		common_template.Resources[buildname].Properties.Name = modulename;
 	});
+	common_template.Resources['RunBuildsPolicy'].Properties.PolicyDocument.Statement[0].Resource = buildnames.map( (name) => { return  { "Fn::GetAtt" : [ name, "Arn" ]}; });
 	common_template.Resources.DatabuilderLogWriterPolicy.Properties.Roles = rolenames.map( (name)=> { return { 'Ref' : name } });
 	rolenames.forEach( name => {
 		common_template.Resources[name] = JSON.parse(JSON.stringify(common_template.Resources.templateRole));
@@ -109,6 +112,9 @@ var apply_submodule_config = function(common_template) {
 			res['Fn::Join'][1][3] = name.replace(/Role$/,'');
 		});
 	});
+
+	var runBuildsCode = require('fs').readFileSync('RunBuilds.js').toString();
+	common_template.Resources.RunBuilds.Properties.Code.ZipFile = runBuildsCode;
 
 	delete common_template.Resources.templateRole;
 	delete common_template.Resources.templateBuildProject;

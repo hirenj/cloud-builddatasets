@@ -28,6 +28,30 @@
         "Roles" : []
       }
     },
+    "RunBuildsPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties" : {
+        "Description" : "Allow function to trigger builds",
+        "PolicyDocument" : {
+          "Version": "2012-10-17",
+          "Statement": [{
+              "Effect": "Allow",
+              "Action": [
+                "codebuild:ListBuildsForProject",
+                "codebuild:StartBuild"
+              ],
+              "Resource": [
+                { "Fn::GetAtt" : [ "templateBuildProject", "Arn" ]}
+              ]
+            },
+            {
+              "Effect" : "Allow",
+              "Action" : "codebuild:ListProjects",
+              "Resource" : "*"
+            }]
+        }
+      }
+    },
     "WriteDataPolicy": {
       "Type": "AWS::IAM::ManagedPolicy",
       "Properties" : {
@@ -43,7 +67,67 @@
                 { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "CacheBucket" } ] ] },
                 { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "OutputBucket" } ] ] }
               ]
-            }]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject",
+                "s3:PutObject"
+              ],
+              "Resource": [
+                { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "CacheBucket" }, "/*" ] ] }
+              ]
+            }
+            ]
+        }
+      }
+    },
+    "RunBuilds": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "index.handler",
+        "Role": { "Fn::GetAtt" : ["RunBuildsRole", "Arn"] },
+        "Code": { "ZipFile" : "exports.handler = function() {}" },
+        "Runtime": "nodejs4.3",
+        "Timeout": "60"
+      }
+    },
+    "ScheduleBuildsRule": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "Description": "ScheduleBuildsRule",
+        "ScheduleExpression": "cron(0 5 1 * ? *)",
+        "State": "ENABLED",
+        "Targets": [{
+          "Arn": { "Fn::GetAtt": ["RunBuilds", "Arn"] },
+          "Id": "RunBuilds"
+        }]
+      }
+    },
+    "InvokeRunBuildsPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": { "Ref": "RunBuilds" },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": { "Fn::GetAtt": ["ScheduleBuildsRule", "Arn"] }
+      }
+    },
+    "RunBuildsRole" : {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "ManagedPolicyArns" : [{"Ref" : "RunBuildsPolicy"}],
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": ["lambda.amazonaws.com"]
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
         }
       }
     },
@@ -62,8 +146,7 @@
                       "s3:PutObject"
                     ],
                     "Resource" : [
-                      { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "OutputBucket" }, "/", "template","/*" ] ] },
-                      { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "CacheBucket" },"/", "template", "/*" ] ] }
+                      { "Fn::Join" :  [ "", [ "arn:aws:s3:::", { "Ref" : "OutputBucket" }, "/", "template","/*" ] ] }
                     ]
                   } ]
                }
