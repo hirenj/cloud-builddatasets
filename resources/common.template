@@ -4,6 +4,10 @@
     "OutputBucket" : {
       "Type" : "String",
       "Default" : "buildoutput"
+    },
+    "Taxonomies" : {
+      "Type" : "String",
+      "Default" : "9606,10090"
     }
   },
   "Resources" : {
@@ -184,6 +188,10 @@
           {
             "Name" : "BUILD_CACHE_BUCKET",
             "Value" : { "Ref" : "CacheBucket" }
+          },
+          {
+            "Name" : "BUILD_TAXONOMY",
+            "Value" : { "Ref" : "Taxonomies" }
           }
           ],
           "ComputeType" : "BUILD_GENERAL1_SMALL",

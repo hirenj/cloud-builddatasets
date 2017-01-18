@@ -1,3 +1,6 @@
 [submodule "builds/parse-topfind"]
 	path = builds/topfind
 	url = https://github.com/hirenj/parse-topfind
+[submodule "builds/glycodomain"]
+	path = builds/glycodomain
+	url = https://github.com/hirenj/lambda-glycodomain-domains.git
