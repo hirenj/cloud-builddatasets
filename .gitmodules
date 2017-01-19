@@ -7,3 +7,6 @@
 [submodule "builds/homology"]
 	path = builds/homology
 	url = https://github.com/hirenj/node-compara2homology
+[submodule "node-uniprotsync"]
+	path = builds/uniprot
+	url = https://github.com/hirenj/node-uniprotsync
