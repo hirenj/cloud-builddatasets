@@ -10,3 +10,6 @@
 [submodule "node-uniprotsync"]
 	path = builds/uniprot
 	url = https://github.com/hirenj/node-uniprotsync
+[submodule "builds/phosphosite"]
+	path = builds/phosphosite
+	url = https://github.com/hirenj/node-phosphositesync
