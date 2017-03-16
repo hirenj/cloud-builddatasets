@@ -92,7 +92,9 @@ var apply_submodule_config = function(common_template) {
 	var buildnames = [];
 	Object.keys(git_config).forEach(module => {
 		var conf = git_config[module];
-		var modulename = conf.path.replace(/builds\//,'').replace(/[^0-9a-z\.\_]/,'');
+		var original_path = conf.path.replace(/builds\//,'');
+		var compute_size = (original_path.match(/@(.*)$/) || [null,'SMALL'])[1].toUpperCase();
+		var modulename = original_path.replace(/@.*$/,'').replace(/[^0-9a-z\.\_]/,'');
 		rolenames.push(modulename+'Role');
 		var buildname = modulename+'BuildProject';
 		buildnames.push(buildname);
@@ -102,6 +104,7 @@ var apply_submodule_config = function(common_template) {
 		common_template.Resources[buildname].Properties.Source.Location = conf.url.replace(/\.git$/,'')+'.git';
 		common_template.Resources[buildname].Properties.Source.BuildSpec = buildspec;
 		common_template.Resources[buildname].Properties.Environment.EnvironmentVariables[1].Value = modulename;
+		common_template.Resources[buildname].Properties.Environment.ComputeType = 'BUILD1_GENERAL_'+compute_size;
 		common_template.Resources[buildname].Properties.Name = modulename;
 	});
 	common_template.Resources['RunBuildsPolicy'].Properties.PolicyDocument.Statement[0].Resource = buildnames.map( (name) => { return  { "Fn::GetAtt" : [ name, "Arn" ]}; });

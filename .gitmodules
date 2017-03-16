@@ -5,7 +5,7 @@
 	path = builds/glycodomain
 	url = https://github.com/hirenj/lambda-glycodomain-domains.git
 [submodule "builds/homology"]
-	path = builds/homology
+	path = builds/homology@large
 	url = https://github.com/hirenj/node-compara2homology
 [submodule "node-uniprotsync"]
 	path = builds/uniprot

@@ -33,7 +33,7 @@ let running_builds_for_project = function(project) {
 };
 
 let start_build = function(project) {
-    return codebuild.startBuild({ projectName: project}).promise();
+    return codebuild.startBuild({ projectName: project, timeoutInMinutesOverride: 3*60 }).promise();
 };
 
 exports.handler = (event, context, callback) => {
