@@ -104,7 +104,7 @@ var apply_submodule_config = function(common_template) {
 		common_template.Resources[buildname].Properties.Source.Location = conf.url.replace(/\.git$/,'')+'.git';
 		common_template.Resources[buildname].Properties.Source.BuildSpec = buildspec;
 		common_template.Resources[buildname].Properties.Environment.EnvironmentVariables[1].Value = modulename;
-		common_template.Resources[buildname].Properties.Environment.ComputeType = 'BUILD1_GENERAL_'+compute_size;
+		common_template.Resources[buildname].Properties.Environment.ComputeType = 'BUILD_GENERAL1_'+compute_size;
 		common_template.Resources[buildname].Properties.Name = modulename;
 	});
 	common_template.Resources['RunBuildsPolicy'].Properties.PolicyDocument.Statement[0].Resource = buildnames.map( (name) => { return  { "Fn::GetAtt" : [ name, "Arn" ]}; });

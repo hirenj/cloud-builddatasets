@@ -13,3 +13,6 @@
 [submodule "builds/phosphosite"]
 	path = builds/phosphosite
 	url = https://github.com/hirenj/node-phosphositesync
+[submodule "builds/gwas_catalog"]
+	path = builds/gwascatalog
+	url = https://github.com/hirenj/node-gwas_catalog-sync
