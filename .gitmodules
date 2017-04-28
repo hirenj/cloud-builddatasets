@@ -16,3 +16,6 @@
 [submodule "builds/gwas_catalog"]
 	path = builds/gwascatalog
 	url = https://github.com/hirenj/node-gwas_catalog-sync
+[submodule "builds/ebigxa"]
+	path = builds/ebigxa
+	url = https://github.com/hirenj/node-gxa-sync
