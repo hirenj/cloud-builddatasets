@@ -21,9 +21,11 @@ promisify(AWS);
 
 const codebuild = new AWS.CodeBuild();
 
+const enabled_builds = (process.env.ENABLED_BUILDS || '').split(',');
+
 let list_projects = function() {
     return codebuild.listProjects().promise().then((projects) => {
-      return projects.projects;  
+      return projects.projects.filter( proj => enabled_builds.indexOf(proj) >= 0);
     });
 };
 

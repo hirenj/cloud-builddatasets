@@ -90,6 +90,7 @@ var apply_submodule_config = function(common_template) {
 	var rolenames = [];
 	var buildspec = require('fs').readFileSync('buildspec.yml').toString();
 	var buildnames = [];
+	var modules = [];
 	Object.keys(git_config).forEach(module => {
 		var conf = git_config[module];
 		var original_path = conf.path.replace(/builds\//,'');
@@ -98,6 +99,7 @@ var apply_submodule_config = function(common_template) {
 		rolenames.push(modulename+'Role');
 		var buildname = modulename+'BuildProject';
 		buildnames.push(buildname);
+		modules.push(modulename);
 		common_template.Resources[buildname] = JSON.parse(JSON.stringify(common_template.Resources.templateBuildProject));
 		var is_node = require('fs').existsSync(conf.path+'/package.json');
 		common_template.Resources[buildname].Properties.ServiceRole = { "Ref" : modulename+"Role" };
@@ -118,6 +120,7 @@ var apply_submodule_config = function(common_template) {
 
 	var runBuildsCode = require('fs').readFileSync('RunBuilds.js').toString();
 	common_template.Resources.RunBuilds.Properties.Code.ZipFile = runBuildsCode;
+	common_template.Resources.RunBuilds.Properties.Environment.Variables.ENABLED_BUILDS = modules.join(',');
 
 	delete common_template.Resources.templateRole;
 	delete common_template.Resources.templateBuildProject;
